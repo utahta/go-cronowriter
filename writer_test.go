@@ -49,8 +49,9 @@ func TestCronoWriter_Write(t *testing.T) {
 		{filepath.Join("2006", "01", "02", "test.log"), filepath.Join("2017", "02", "04", "test.log")},
 	}
 
+	jst := time.FixedZone("Asia/Tokyp", 9*60*60)
 	for _, test := range tests {
-		c := New(tmpDir, test.pattern)
+		c := New(tmpDir, test.pattern, WithLocation(jst))
 		for i := 0; i < 2; i++ {
 			if _, err := c.Write([]byte("test")); err != nil {
 				t.Fatal(err)
