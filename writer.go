@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -14,13 +15,15 @@ type cronoWriter struct {
 	path    string
 	fp      *os.File
 	loc     *time.Location
+	mux     sync.Locker
 }
 
 type option func(*cronoWriter)
 
 var (
-	_   io.WriteCloser   = &cronoWriter{} // check if object implements interface
-	now func() time.Time = time.Now       // for test
+	_                 io.WriteCloser   = &cronoWriter{} // check if object implements interface
+	now               func() time.Time = time.Now       // for test
+	waitCloseDuration                  = 5 * time.Second
 )
 
 // New returns the cronoWriter
@@ -33,6 +36,7 @@ func New(baseDir, pattern string, options ...option) *cronoWriter {
 		path:    "",
 		fp:      nil,
 		loc:     time.Local,
+		mux:     new(NoMutex), // default mutex off
 	}
 
 	for _, option := range options {
@@ -57,7 +61,16 @@ func WithLocation(loc *time.Location) option {
 	}
 }
 
+func WithMutex() option {
+	return func(c *cronoWriter) {
+		c.mux = new(sync.Mutex)
+	}
+}
+
 func (c *cronoWriter) Write(b []byte) (int, error) {
+	c.mux.Lock()
+	defer c.mux.Unlock()
+
 	path := filepath.Join(c.baseDir, now().In(c.loc).Format(c.pattern))
 
 	if c.path != path {
@@ -66,6 +79,7 @@ func (c *cronoWriter) Write(b []byte) (int, error) {
 			if fp == nil {
 				return
 			}
+			time.Sleep(waitCloseDuration) // to be safe..., any ideas?
 			fp.Close()
 		}(c.fp)
 
@@ -85,5 +99,8 @@ func (c *cronoWriter) Write(b []byte) (int, error) {
 }
 
 func (c *cronoWriter) Close() error {
+	c.mux.Lock()
+	defer c.mux.Unlock()
+
 	return c.fp.Close()
 }

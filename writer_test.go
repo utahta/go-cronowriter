@@ -93,6 +93,23 @@ func TestCronoWriter_WriteRepeat(t *testing.T) {
 	}
 }
 
+func TestCronoWriter_WriteMutex(t *testing.T) {
+	tmpDir, err := ioutil.TempDir("", "cronowriter")
+	if err != nil {
+		t.Fatal(err)
+	}
+	stubNow("2017-02-04 16:35:05 +0900")
+
+	c := New(tmpDir, "test.log.%Y%m%d%H%M%S", WithMutex())
+	for i := 0; i < 10; i++ {
+		go func() {
+			if _, err := c.Write([]byte("test")); err != nil {
+				t.Fatal(err)
+			}
+		}()
+	}
+}
+
 func TestCronoWriter_Close(t *testing.T) {
 	c := New("", "file")
 	if err := c.Close(); err != os.ErrInvalid {
