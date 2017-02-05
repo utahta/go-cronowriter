@@ -1,0 +1,6 @@
+hash: a94dee9ba95d3d8cb2ca3318716655355cfa381cd538a95e847db625d3bc29f8
+updated: 2017-02-05T10:24:28.375077131+09:00
+imports:
+- name: github.com/lestrrat/go-strftime
+  version: 04ef93e285313c8978cbc7cad26d2aa7a9927451
+testImports: []

@@ -18,7 +18,7 @@ import "github.com/utahta/go-cronowriter"
 ```
 
 ```go
-w := writer.New("/path/to", "example.log.%Y%m%d")
+w := writer.MustNew("/path/to/example.log.%Y%m%d")
 w.Write([]byte("test"))
 
 // output file
@@ -27,23 +27,30 @@ w.Write([]byte("test"))
 
 if you specify a directory
 ```go
-w := writer.New("/path/to", "%Y/%m/%d/example.log")
+w := writer.MustNew("/path/to/%Y/%m/%d/example.log")
 w.Write([]byte("test"))
 
 // output file
 // /path/to/2017/02/04/example.log
 ```
 
+with Location
+```go
+w := writer.MustNew("/path/to/example.log.%Z", writer.WithLocation(time.UTC))
+w.Write([]byte("test"))
+
+// output file
+// /path/to/example.log.UTC
+```
+
+with Mutex
+```go
+w := writer.MustNew("/path/to/example.log.%Y%m%d", writer.WithMutex())
+```
+
 ## Format
 
-| layout |             |
-|--------|-------------|
-| %Y     | year (2006) |
-| %m     |  month (01) |
-| %d     |   day (02)  |
-| %H     |  hour (15)  |
-| %M     | minute (04) |
-| %S     | second (05) |
+See [lestrrat/go-strftime#supported-conversion-specifications](https://github.com/lestrrat/go-strftime#supported-conversion-specifications)
 
 ## Combination
 
@@ -58,8 +65,8 @@ import (
 )
 
 func main() {
-	w1 := writer.New("/tmp", "example.log.%Y%m%d")
-	w2 := writer.New("/tmp", "internal_error.log.%Y%m%d")
+	w1 := writer.MustNew("/tmp/example.log.%Y%m%d")
+	w2 := writer.MustNew("/tmp/internal_error.log.%Y%m%d")
 	l := zap.New(
 		zap.NewJSONEncoder(),
 		zap.Output(zap.AddSync(w1)),

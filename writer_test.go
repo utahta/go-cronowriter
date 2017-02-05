@@ -17,20 +17,40 @@ func stubNow(value string) {
 }
 
 func TestNew(t *testing.T) {
-	c := New("/path/to", "file")
-	if c.pattern != "file" {
-		t.Errorf("Expected pattern file, got %s", c.pattern)
+	c, _ := New("/path/to/file")
+	if c.pattern.Pattern() != "/path/to/file" {
+		t.Errorf("Expected pattern file, got %s", c.pattern.Pattern())
 	}
 
-	c = New("/", "%Y/%m/%d/%H/%M/%S/file")
-	if c.pattern != "2006/01/02/15/04/05/file" {
-		t.Errorf("Expected pattern 2006/01/02/15/04/05/file, got %s", c.pattern)
+	c, _ = New("/%Y/%m/%d/%H/%M/%S/file")
+	if c.pattern.Pattern() != "/%Y/%m/%d/%H/%M/%S/file" {
+		t.Errorf("Expected pattern 2006/01/02/15/04/05/file, got %s", c.pattern.Pattern())
 	}
 
-	c = New("/path/to", "file", WithLocation(time.UTC))
+	c, _ = New("/path/to/file", WithLocation(time.UTC))
 	if c.loc != time.UTC {
 		t.Errorf("Expected location UTC, got %v", c.loc)
 	}
+
+	c, _ = New("/path/to/file", WithMutex())
+	if c.mux == nil {
+		t.Error("Expected mutex object, got nil")
+	}
+
+	c, err := New("/path/to/%")
+	if err == nil {
+		t.Errorf("Expected failed compile error, got %v", err)
+	}
+}
+
+func TestMustNew_Panic(t *testing.T) {
+	defer func() {
+		if r := recover(); r == nil {
+			t.Error("Expected get panic")
+		}
+	}()
+
+	MustNew("/path/to/%")
 }
 
 func TestCronoWriter_Write(t *testing.T) {
@@ -46,12 +66,12 @@ func TestCronoWriter_Write(t *testing.T) {
 	}{
 		{"test.log.%Y%m%d%H%M%S", "test.log.20170204163505"},
 		{filepath.Join("%Y", "%m", "%d", "test.log"), filepath.Join("2017", "02", "04", "test.log")},
-		{filepath.Join("2006", "01", "02", "test.log"), filepath.Join("2017", "02", "04", "test.log")},
+		{filepath.Join("2006", "01", "02", "test.log"), filepath.Join("2006", "01", "02", "test.log")},
 	}
 
 	jst := time.FixedZone("Asia/Tokyp", 9*60*60)
 	for _, test := range tests {
-		c := New(tmpDir, test.pattern, WithLocation(jst))
+		c := MustNew(filepath.Join(tmpDir, test.pattern), WithLocation(jst))
 		for i := 0; i < 2; i++ {
 			if _, err := c.Write([]byte("test")); err != nil {
 				t.Fatal(err)
@@ -84,7 +104,7 @@ func TestCronoWriter_WriteRepeat(t *testing.T) {
 		{"2017-02-04 16:35:09 +0900"},
 	}
 
-	c := New(tmpDir, "test.log.%Y%m%d%H%M%S")
+	c := MustNew(filepath.Join(tmpDir, "test.log.%Y%m%d%H%M%S"))
 	for _, test := range tests {
 		stubNow(test.value)
 		if _, err := c.Write([]byte("test")); err != nil {
@@ -100,7 +120,7 @@ func TestCronoWriter_WriteMutex(t *testing.T) {
 	}
 	stubNow("2017-02-04 16:35:05 +0900")
 
-	c := New(tmpDir, "test.log.%Y%m%d%H%M%S", WithMutex())
+	c := MustNew(filepath.Join(tmpDir, "test.log.%Y%m%d%H%M%S"), WithMutex())
 	for i := 0; i < 10; i++ {
 		go func() {
 			if _, err := c.Write([]byte("test")); err != nil {
@@ -111,7 +131,7 @@ func TestCronoWriter_WriteMutex(t *testing.T) {
 }
 
 func TestCronoWriter_Close(t *testing.T) {
-	c := New("", "file")
+	c := MustNew("file")
 	if err := c.Close(); err != os.ErrInvalid {
 		t.Error(err)
 	}

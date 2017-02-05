@@ -4,5 +4,8 @@ go:
   - 1.7
   - tip
 sudo: false
+install:
+  - wget -q -O - https://github.com/Masterminds/glide/releases/download/v0.12.3/glide-v0.12.3-linux-amd64.tar.gz | tar xvz
+  - linux-amd64/glide install
 script:
   - make test

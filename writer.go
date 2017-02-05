@@ -4,14 +4,14 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strings"
 	"sync"
 	"time"
+
+	"github.com/lestrrat/go-strftime"
 )
 
 type cronoWriter struct {
-	baseDir string
-	pattern string
+	pattern *strftime.Strftime
 	path    string
 	fp      *os.File
 	loc     *time.Location
@@ -26,13 +26,15 @@ var (
 	waitCloseDuration                  = 5 * time.Second
 )
 
-// New returns the cronoWriter
-func New(baseDir, pattern string, options ...option) *cronoWriter {
-	pattern = replacePattern(pattern)
+// New returns a cronoWriter with the given pattern and options.
+func New(pattern string, options ...option) (*cronoWriter, error) {
+	p, err := strftime.New(pattern)
+	if err != nil {
+		return nil, err
+	}
 
 	c := &cronoWriter{
-		baseDir: baseDir,
-		pattern: pattern,
+		pattern: p,
 		path:    "",
 		fp:      nil,
 		loc:     time.Local,
@@ -42,17 +44,17 @@ func New(baseDir, pattern string, options ...option) *cronoWriter {
 	for _, option := range options {
 		option(c)
 	}
-	return c
+	return c, nil
 }
 
-func replacePattern(p string) string {
-	p = strings.Replace(p, "%Y", "2006", -1)
-	p = strings.Replace(p, "%m", "01", -1)
-	p = strings.Replace(p, "%d", "02", -1)
-	p = strings.Replace(p, "%H", "15", -1)
-	p = strings.Replace(p, "%M", "04", -1)
-	p = strings.Replace(p, "%S", "05", -1)
-	return p
+// MustNew is a convenience function equivalent to New that panics on failure
+// instead of returning an error.
+func MustNew(pattern string, options ...option) *cronoWriter {
+	c, err := New(pattern, options...)
+	if err != nil {
+		panic(err)
+	}
+	return c
 }
 
 func WithLocation(loc *time.Location) option {
@@ -71,7 +73,7 @@ func (c *cronoWriter) Write(b []byte) (int, error) {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 
-	path := filepath.Join(c.baseDir, now().In(c.loc).Format(c.pattern))
+	path := c.pattern.FormatString(now().In(c.loc))
 
 	if c.path != path {
 		// close file
@@ -79,7 +81,7 @@ func (c *cronoWriter) Write(b []byte) (int, error) {
 			if fp == nil {
 				return
 			}
-			time.Sleep(waitCloseDuration) // to be safe..., any ideas?
+			time.Sleep(waitCloseDuration) // any ideas?
 			fp.Close()
 		}(c.fp)
 
