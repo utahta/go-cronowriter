@@ -51,9 +51,18 @@ w := writer.MustNew("/path/to/example.log.%Y%m%d", writer.WithMutex())
 with Debug (stdout and stderr)
 ```go
 w := writer.MustNew("/path/to/example.log.%Y%m%d", writer.WithDebug())
+w.Write([]byte("test"))
 
 // output file, stdout and stderr
-// /path/to/2017/02/04/example.log
+// /path/to/example.log.20170204
+```
+
+with Init
+```go
+w := writer.MustNew("/path/to/example.log.%Y%m%d", writer.WithInit())
+
+// open the file when New() method is called
+// /path/to/example.log.20170204
 ```
 
 ## Format

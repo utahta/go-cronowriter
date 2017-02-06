@@ -17,6 +17,11 @@ func stubNow(value string) {
 }
 
 func TestNew(t *testing.T) {
+	tmpDir, err := ioutil.TempDir("", "cronowriter")
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	c, _ := New("/path/to/file")
 	if c.pattern.Pattern() != "/path/to/file" {
 		t.Errorf("Expected pattern file, got %s", c.pattern.Pattern())
@@ -37,9 +42,18 @@ func TestNew(t *testing.T) {
 		t.Error("Expected mutex object, got nil")
 	}
 
-	c, err := New("/path/to/%")
+	c, err = New("/path/to/%")
 	if err == nil {
 		t.Errorf("Expected failed compile error, got %v", err)
+	}
+
+	initPath := filepath.Join(tmpDir, "init_test.log")
+	_, err = New(initPath, WithInit())
+	if err != nil {
+		t.Error(err)
+	}
+	if _, err := os.Stat(initPath); err != nil {
+		t.Error(err)
 	}
 }
 

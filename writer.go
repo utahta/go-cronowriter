@@ -11,13 +11,14 @@ import (
 )
 
 type cronoWriter struct {
-	pattern *strftime.Strftime
-	path    string
-	fp      *os.File
+	pattern *strftime.Strftime // given pattern
+	path    string             // current file path
+	fp      *os.File           // current file pointer
 	loc     *time.Location
 	mux     sync.Locker
 	stdout  io.Writer
 	stderr  io.Writer
+	init    bool // if true, open the file when New() method is called
 }
 
 type option func(*cronoWriter)
@@ -48,10 +49,17 @@ func New(pattern string, options ...option) (*cronoWriter, error) {
 		mux:     new(NoMutex), // default mutex off
 		stdout:  &noopWriter{},
 		stderr:  &noopWriter{},
+		init:    false,
 	}
 
 	for _, option := range options {
 		option(c)
+	}
+
+	if c.init {
+		if _, err := c.Write([]byte("")); err != nil {
+			return nil, err
+		}
 	}
 	return c, nil
 }
@@ -82,6 +90,12 @@ func WithDebug() option {
 	return func(c *cronoWriter) {
 		c.stdout = os.Stdout
 		c.stderr = os.Stderr
+	}
+}
+
+func WithInit() option {
+	return func(c *cronoWriter) {
+		c.init = true
 	}
 }
 
