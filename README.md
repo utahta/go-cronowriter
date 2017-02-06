@@ -3,7 +3,7 @@
 [![GitHub release](https://img.shields.io/github/release/utahta/go-cronowriter.svg)](https://github.com/utahta/go-cronowriter/releases)
 [![Build Status](https://travis-ci.org/utahta/go-cronowriter.svg?branch=master)](https://travis-ci.org/utahta/go-cronowriter)
 
-This is a simple file writer that writes message to a set of output files, the names of which are constructed like cronolog.
+This is a simple file writer that writes message to a set of output files, the names of which are constructed time-based format like cronolog.
 
 ## Install
 
@@ -46,6 +46,14 @@ w.Write([]byte("test"))
 with Mutex
 ```go
 w := writer.MustNew("/path/to/example.log.%Y%m%d", writer.WithMutex())
+```
+
+with Debug (stdout and stderr)
+```go
+w := writer.MustNew("/path/to/example.log.%Y%m%d", writer.WithDebug())
+
+// output file, stdout and stderr
+// /path/to/2017/02/04/example.log
 ```
 
 ## Format

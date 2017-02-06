@@ -16,14 +16,21 @@ type cronoWriter struct {
 	fp      *os.File
 	loc     *time.Location
 	mux     sync.Locker
+	stdout  io.Writer
+	stderr  io.Writer
 }
 
 type option func(*cronoWriter)
 
+type noopWriter struct{}
+
+func (*noopWriter) Write([]byte) (int, error) {
+	return 0, nil // no-op
+}
+
 var (
-	_                 io.WriteCloser   = &cronoWriter{} // check if object implements interface
-	now               func() time.Time = time.Now       // for test
-	waitCloseDuration                  = 5 * time.Second
+	_   io.WriteCloser   = &cronoWriter{} // check if object implements interface
+	now func() time.Time = time.Now       // for test
 )
 
 // New returns a cronoWriter with the given pattern and options.
@@ -39,6 +46,8 @@ func New(pattern string, options ...option) (*cronoWriter, error) {
 		fp:      nil,
 		loc:     time.Local,
 		mux:     new(NoMutex), // default mutex off
+		stdout:  &noopWriter{},
+		stderr:  &noopWriter{},
 	}
 
 	for _, option := range options {
@@ -69,6 +78,13 @@ func WithMutex() option {
 	}
 }
 
+func WithDebug() option {
+	return func(c *cronoWriter) {
+		c.stdout = os.Stdout
+		c.stderr = os.Stderr
+	}
+}
+
 func (c *cronoWriter) Write(b []byte) (int, error) {
 	c.mux.Lock()
 	defer c.mux.Unlock()
@@ -81,23 +97,23 @@ func (c *cronoWriter) Write(b []byte) (int, error) {
 			if fp == nil {
 				return
 			}
-			time.Sleep(waitCloseDuration) // any ideas?
 			fp.Close()
 		}(c.fp)
 
 		dir := filepath.Dir(path)
 		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
-			return 0, err
+			return c.write(nil, err)
 		}
 
 		fp, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 		if err != nil {
-			return 0, err
+			return c.write(nil, err)
 		}
 		c.path = path
 		c.fp = fp
 	}
-	return c.fp.Write(b)
+
+	return c.write(b, nil)
 }
 
 func (c *cronoWriter) Close() error {
@@ -105,4 +121,14 @@ func (c *cronoWriter) Close() error {
 	defer c.mux.Unlock()
 
 	return c.fp.Close()
+}
+
+func (c *cronoWriter) write(b []byte, err error) (int, error) {
+	if err != nil {
+		c.stderr.Write([]byte(err.Error()))
+		return 0, err
+	}
+
+	c.stdout.Write(b)
+	return c.fp.Write(b)
 }
