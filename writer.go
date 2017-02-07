@@ -10,7 +10,7 @@ import (
 	"github.com/lestrrat/go-strftime"
 )
 
-type cronoWriter struct {
+type CronoWriter struct {
 	pattern *strftime.Strftime // given pattern
 	path    string             // current file path
 	fp      *os.File           // current file pointer
@@ -21,7 +21,7 @@ type cronoWriter struct {
 	init    bool // if true, open the file when New() method is called
 }
 
-type option func(*cronoWriter)
+type Option func(*CronoWriter)
 
 type noopWriter struct{}
 
@@ -30,18 +30,18 @@ func (*noopWriter) Write([]byte) (int, error) {
 }
 
 var (
-	_   io.WriteCloser   = &cronoWriter{} // check if object implements interface
+	_   io.WriteCloser   = &CronoWriter{} // check if object implements interface
 	now func() time.Time = time.Now       // for test
 )
 
-// New returns a cronoWriter with the given pattern and options.
-func New(pattern string, options ...option) (*cronoWriter, error) {
+// New returns a CronoWriter with the given pattern and options.
+func New(pattern string, options ...Option) (*CronoWriter, error) {
 	p, err := strftime.New(pattern)
 	if err != nil {
 		return nil, err
 	}
 
-	c := &cronoWriter{
+	c := &CronoWriter{
 		pattern: p,
 		path:    "",
 		fp:      nil,
@@ -66,7 +66,7 @@ func New(pattern string, options ...option) (*cronoWriter, error) {
 
 // MustNew is a convenience function equivalent to New that panics on failure
 // instead of returning an error.
-func MustNew(pattern string, options ...option) *cronoWriter {
+func MustNew(pattern string, options ...Option) *CronoWriter {
 	c, err := New(pattern, options...)
 	if err != nil {
 		panic(err)
@@ -74,32 +74,32 @@ func MustNew(pattern string, options ...option) *cronoWriter {
 	return c
 }
 
-func WithLocation(loc *time.Location) option {
-	return func(c *cronoWriter) {
+func WithLocation(loc *time.Location) Option {
+	return func(c *CronoWriter) {
 		c.loc = loc
 	}
 }
 
-func WithMutex() option {
-	return func(c *cronoWriter) {
+func WithMutex() Option {
+	return func(c *CronoWriter) {
 		c.mux = new(sync.Mutex)
 	}
 }
 
-func WithDebug() option {
-	return func(c *cronoWriter) {
+func WithDebug() Option {
+	return func(c *CronoWriter) {
 		c.stdout = os.Stdout
 		c.stderr = os.Stderr
 	}
 }
 
-func WithInit() option {
-	return func(c *cronoWriter) {
+func WithInit() Option {
+	return func(c *CronoWriter) {
 		c.init = true
 	}
 }
 
-func (c *cronoWriter) Write(b []byte) (int, error) {
+func (c *CronoWriter) Write(b []byte) (int, error) {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 
@@ -130,14 +130,14 @@ func (c *cronoWriter) Write(b []byte) (int, error) {
 	return c.write(b, nil)
 }
 
-func (c *cronoWriter) Close() error {
+func (c *CronoWriter) Close() error {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 
 	return c.fp.Close()
 }
 
-func (c *cronoWriter) write(b []byte, err error) (int, error) {
+func (c *CronoWriter) write(b []byte, err error) (int, error) {
 	if err != nil {
 		c.stderr.Write([]byte(err.Error()))
 		return 0, err
