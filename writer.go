@@ -13,11 +13,11 @@ import (
 type CronoWriter struct {
 	pattern *strftime.Strftime // given pattern
 	path    string             // current file path
+	symlink *strftime.Strftime // symbolic link to current file path
 	fp      *os.File           // current file pointer
 	loc     *time.Location
 	mux     sync.Locker
-	stdout  io.Writer
-	stderr  io.Writer
+	debug   logger
 	init    bool // if true, open the file when New() method is called
 }
 
@@ -38,11 +38,11 @@ func New(pattern string, options ...Option) (*CronoWriter, error) {
 	c := &CronoWriter{
 		pattern: p,
 		path:    "",
+		symlink: nil,
 		fp:      nil,
 		loc:     time.Local,
 		mux:     new(noopMutex), // default mutex off
-		stdout:  &noopWriter{},
-		stderr:  &noopWriter{},
+		debug:   &noopLogger{},
 		init:    false,
 	}
 
@@ -74,6 +74,16 @@ func WithLocation(loc *time.Location) Option {
 	}
 }
 
+func WithSymlink(pattern string) Option {
+	return func(c *CronoWriter) {
+		p, err := strftime.New(pattern)
+		if err != nil {
+			panic(err)
+		}
+		c.symlink = p
+	}
+}
+
 func WithMutex() Option {
 	return func(c *CronoWriter) {
 		c.mux = new(sync.Mutex)
@@ -82,8 +92,7 @@ func WithMutex() Option {
 
 func WithDebug() Option {
 	return func(c *CronoWriter) {
-		c.stdout = os.Stdout
-		c.stderr = os.Stderr
+		c.debug = newDebugLogger()
 	}
 }
 
@@ -97,7 +106,8 @@ func (c *CronoWriter) Write(b []byte) (int, error) {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 
-	path := c.pattern.FormatString(now().In(c.loc))
+	t := now().In(c.loc)
+	path := c.pattern.FormatString(t)
 
 	if c.path != path {
 		// close file
@@ -117,11 +127,35 @@ func (c *CronoWriter) Write(b []byte) (int, error) {
 		if err != nil {
 			return c.write(nil, err)
 		}
+		c.createSymlink(t, path)
+
 		c.path = path
 		c.fp = fp
 	}
 
 	return c.write(b, nil)
+}
+
+func (c *CronoWriter) createSymlink(t time.Time, path string) {
+	if c.symlink == nil {
+		return
+	}
+
+	symlink := c.symlink.FormatString(t)
+	if symlink == path {
+		c.debug.Error("Can't create symlink. same path is specified.")
+		return
+	}
+
+	if err := os.Remove(symlink); err != nil {
+		c.debug.Error(err)
+		return
+	}
+
+	if err := os.Symlink(path, symlink); err != nil {
+		c.debug.Error(err)
+		// ignore error
+	}
 }
 
 func (c *CronoWriter) Close() error {
@@ -133,10 +167,10 @@ func (c *CronoWriter) Close() error {
 
 func (c *CronoWriter) write(b []byte, err error) (int, error) {
 	if err != nil {
-		c.stderr.Write([]byte(err.Error()))
+		c.debug.Error(err)
 		return 0, err
 	}
 
-	c.stdout.Write(b)
+	c.debug.Write(b)
 	return c.fp.Write(b)
 }

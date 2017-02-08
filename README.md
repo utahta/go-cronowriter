@@ -43,6 +43,16 @@ w.Write([]byte("test"))
 // /path/to/example.log.UTC
 ```
 
+with Symlink
+```go
+w := writer.MustNew("/path/to/example.log.%Y%m%d", writer.WithSymlink("/path/to/example.log"))
+w.Write([]byte("test"))
+
+// output file
+// /path/to/example.log.20170204
+// /path/to/example.log -> /path/to/example.log.20170204
+```
+
 with Mutex
 ```go
 w := writer.MustNew("/path/to/example.log.%Y%m%d", writer.WithMutex())
