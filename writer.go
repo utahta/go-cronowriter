@@ -23,12 +23,6 @@ type CronoWriter struct {
 
 type Option func(*CronoWriter)
 
-type noopWriter struct{}
-
-func (*noopWriter) Write([]byte) (int, error) {
-	return 0, nil // no-op
-}
-
 var (
 	_   io.WriteCloser   = &CronoWriter{} // check if object implements interface
 	now func() time.Time = time.Now       // for test
@@ -46,7 +40,7 @@ func New(pattern string, options ...Option) (*CronoWriter, error) {
 		path:    "",
 		fp:      nil,
 		loc:     time.Local,
-		mux:     new(NoMutex), // default mutex off
+		mux:     new(noopMutex), // default mutex off
 		stdout:  &noopWriter{},
 		stderr:  &noopWriter{},
 		init:    false,
