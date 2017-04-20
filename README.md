@@ -18,7 +18,7 @@ import "github.com/utahta/go-cronowriter"
 ```
 
 ```go
-w := writer.MustNew("/path/to/example.log.%Y%m%d")
+w := cronowriter.MustNew("/path/to/example.log.%Y%m%d")
 w.Write([]byte("test"))
 
 // output file
@@ -27,7 +27,7 @@ w.Write([]byte("test"))
 
 if you specify a directory
 ```go
-w := writer.MustNew("/path/to/%Y/%m/%d/example.log")
+w := cronowriter.MustNew("/path/to/%Y/%m/%d/example.log")
 w.Write([]byte("test"))
 
 // output file
@@ -36,7 +36,7 @@ w.Write([]byte("test"))
 
 with Location
 ```go
-w := writer.MustNew("/path/to/example.log.%Z", writer.WithLocation(time.UTC))
+w := cronowriter.MustNew("/path/to/example.log.%Z", writer.WithLocation(time.UTC))
 w.Write([]byte("test"))
 
 // output file
@@ -45,7 +45,7 @@ w.Write([]byte("test"))
 
 with Symlink
 ```go
-w := writer.MustNew("/path/to/example.log.%Y%m%d", writer.WithSymlink("/path/to/example.log"))
+w := cronowriter.MustNew("/path/to/example.log.%Y%m%d", writer.WithSymlink("/path/to/example.log"))
 w.Write([]byte("test"))
 
 // output file
@@ -55,12 +55,12 @@ w.Write([]byte("test"))
 
 with Mutex
 ```go
-w := writer.MustNew("/path/to/example.log.%Y%m%d", writer.WithMutex())
+w := cronowriter.MustNew("/path/to/example.log.%Y%m%d", writer.WithMutex())
 ```
 
 with Debug (stdout and stderr)
 ```go
-w := writer.MustNew("/path/to/example.log.%Y%m%d", writer.WithDebug())
+w := cronowriter.MustNew("/path/to/example.log.%Y%m%d", writer.WithDebug())
 w.Write([]byte("test"))
 
 // output file, stdout and stderr
@@ -69,7 +69,7 @@ w.Write([]byte("test"))
 
 with Init
 ```go
-w := writer.MustNew("/path/to/example.log.%Y%m%d", writer.WithInit())
+w := cronowriter.MustNew("/path/to/example.log.%Y%m%d", writer.WithInit())
 
 // open the file when New() method is called
 // /path/to/example.log.20170204
@@ -92,8 +92,8 @@ import (
 )
 
 func main() {
-	w1 := writer.MustNew("/tmp/example.log.%Y%m%d")
-	w2 := writer.MustNew("/tmp/internal_error.log.%Y%m%d")
+	w1 := cronowriter.MustNew("/tmp/example.log.%Y%m%d")
+	w2 := cronowriter.MustNew("/tmp/internal_error.log.%Y%m%d")
 	l := zap.New(
 		zap.NewJSONEncoder(),
 		zap.Output(zap.AddSync(w1)),

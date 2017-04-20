@@ -1,6 +1,6 @@
-package writer
+package cronowriter
 
-type noopMutex struct{}
+type nopMutex struct{}
 
-func (*noopMutex) Lock()   {}
-func (*noopMutex) Unlock() {}
+func (*nopMutex) Lock()   {}
+func (*nopMutex) Unlock() {}

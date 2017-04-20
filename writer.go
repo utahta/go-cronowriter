@@ -1,4 +1,4 @@
-package writer
+package cronowriter
 
 import (
 	"io"
@@ -41,8 +41,8 @@ func New(pattern string, options ...Option) (*CronoWriter, error) {
 		symlink: nil,
 		fp:      nil,
 		loc:     time.Local,
-		mux:     new(noopMutex), // default mutex off
-		debug:   &noopLogger{},
+		mux:     new(nopMutex), // default mutex off
+		debug:   &nopLogger{},
 		init:    false,
 	}
 

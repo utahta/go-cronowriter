@@ -1,4 +1,4 @@
-package writer
+package cronowriter
 
 import (
 	"io/ioutil"
