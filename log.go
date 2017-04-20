@@ -1,4 +1,4 @@
-package writer
+package cronowriter
 
 import (
 	"fmt"
@@ -14,7 +14,7 @@ type logger interface {
 	Errorf(format string, args ...interface{})
 }
 
-type noopLogger struct{}
+type nopLogger struct{}
 
 type debugLogger struct {
 	stdout io.Writer
@@ -28,11 +28,11 @@ func newDebugLogger() *debugLogger {
 	}
 }
 
-func (l *noopLogger) Write(b []byte)                            {}
-func (l *noopLogger) Println(args ...interface{})               {}
-func (l *noopLogger) Printf(format string, args ...interface{}) {}
-func (l *noopLogger) Error(args ...interface{})                 {}
-func (l *noopLogger) Errorf(format string, args ...interface{}) {}
+func (l *nopLogger) Write(b []byte)                            {}
+func (l *nopLogger) Println(args ...interface{})               {}
+func (l *nopLogger) Printf(format string, args ...interface{}) {}
+func (l *nopLogger) Error(args ...interface{})                 {}
+func (l *nopLogger) Errorf(format string, args ...interface{}) {}
 
 func (l *debugLogger) Write(b []byte) {
 	fmt.Fprintf(l.stdout, "%s", b)
