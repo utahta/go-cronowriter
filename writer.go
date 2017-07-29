@@ -10,22 +10,26 @@ import (
 	"github.com/lestrrat/go-strftime"
 )
 
-type CronoWriter struct {
-	pattern *strftime.Strftime // given pattern
-	path    string             // current file path
-	symlink *strftime.Strftime // symbolic link to current file path
-	fp      *os.File           // current file pointer
-	loc     *time.Location
-	mux     sync.Locker
-	debug   logger
-	init    bool // if true, open the file when New() method is called
-}
+type (
+	// A CronoWriter writes message to a set of output files.
+	CronoWriter struct {
+		pattern *strftime.Strftime // given pattern
+		path    string             // current file path
+		symlink *strftime.Strftime // symbolic link to current file path
+		fp      *os.File           // current file pointer
+		loc     *time.Location
+		mux     sync.Locker
+		debug   logger
+		init    bool // if true, open the file when New() method is called
+	}
 
-type Option func(*CronoWriter)
+	// A CronoWriter Option.
+	Option func(*CronoWriter)
+)
 
 var (
-	_   io.WriteCloser   = &CronoWriter{} // check if object implements interface
-	now func() time.Time = time.Now       // for test
+	_   io.WriteCloser   = (*CronoWriter)(nil) // check if object implements interface
+	now func() time.Time = time.Now            // for test
 )
 
 // New returns a CronoWriter with the given pattern and options.
@@ -41,7 +45,7 @@ func New(pattern string, options ...Option) (*CronoWriter, error) {
 		symlink: nil,
 		fp:      nil,
 		loc:     time.Local,
-		mux:     new(nopMutex), // default mutex off
+		mux:     new(sync.Mutex), // default mutex enable
 		debug:   &nopLogger{},
 		init:    false,
 	}
@@ -68,12 +72,14 @@ func MustNew(pattern string, options ...Option) *CronoWriter {
 	return c
 }
 
+// WithLocation set the location to loc.
 func WithLocation(loc *time.Location) Option {
 	return func(c *CronoWriter) {
 		c.loc = loc
 	}
 }
 
+// WithSymlink enables its creates a symbolic link to the specify pattern.
 func WithSymlink(pattern string) Option {
 	return func(c *CronoWriter) {
 		p, err := strftime.New(pattern)
@@ -84,18 +90,28 @@ func WithSymlink(pattern string) Option {
 	}
 }
 
+// WithMutex enables its uses sync.Mutex when file writing.
 func WithMutex() Option {
 	return func(c *CronoWriter) {
 		c.mux = new(sync.Mutex)
 	}
 }
 
+// WithNopMutex disables its uses sync.Mutex when file writing.
+func WithNopMutex() Option {
+	return func(c *CronoWriter) {
+		c.mux = new(nopMutex)
+	}
+}
+
+// WithDebug enables output stdout and stderr.
 func WithDebug() Option {
 	return func(c *CronoWriter) {
 		c.debug = newDebugLogger()
 	}
 }
 
+// WithInit enables its creates output file when CronoWriter initialize.
 func WithInit() Option {
 	return func(c *CronoWriter) {
 		c.init = true
@@ -144,17 +160,17 @@ func (c *CronoWriter) createSymlink(t time.Time, path string) {
 	symlink := c.symlink.FormatString(t)
 	if symlink == path {
 		c.debug.Error("Can't create symlink. same path is specified.")
-		return
+		return // ignore error
 	}
 
 	if err := os.Remove(symlink); err != nil {
 		c.debug.Error(err)
-		return
+		return // ignore error
 	}
 
 	if err := os.Symlink(path, symlink); err != nil {
 		c.debug.Error(err)
-		// ignore error
+		return // ignore error
 	}
 }
 

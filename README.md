@@ -1,17 +1,27 @@
-# CronoWriter
+# cronowriter
 
-[![GitHub release](https://img.shields.io/github/release/utahta/go-cronowriter.svg)](https://github.com/utahta/go-cronowriter/releases)
+[![GoDoc Reference](https://godoc.org/github.com/utahta/go-cronowriter?status.svg)](http://godoc.org/github.com/utahta/go-cronowriter)
 [![Build Status](https://travis-ci.org/utahta/go-cronowriter.svg?branch=master)](https://travis-ci.org/utahta/go-cronowriter)
+[![Go Report Card](https://goreportcard.com/badge/github.com/utahta/go-cronowriter)](https://goreportcard.com/report/github.com/utahta/go-cronowriter)
+[![GitHub release](https://img.shields.io/github/release/utahta/go-cronowriter.svg)](https://github.com/utahta/go-cronowriter/releases)
 
-This is a simple file writer that writes message to a set of output files, the names of which are constructed time-based format like cronolog.
+This is a simple file writer that it writes message to the output files.
 
-## Install
+The output file names are constructed time-based format like cronolog.
+
+## Installation
 
 ```
 $ go get -u github.com/utahta/go-cronowriter
 ```
 
-## Usage
+## Documentation
+
+API documentation can be found [here](http://godoc.org/github.com/utahta/go-cronowriter).
+
+The format specifications can be found [here](https://github.com/lestrrat/go-strftime#supported-conversion-specifications).
+
+## Examples
 
 ```go
 import "github.com/utahta/go-cronowriter"
@@ -25,7 +35,7 @@ w.Write([]byte("test"))
 // /path/to/example.log.20170204
 ```
 
-if you specify a directory
+You can specify the directory as below
 ```go
 w := cronowriter.MustNew("/path/to/%Y/%m/%d/example.log")
 w.Write([]byte("test"))
@@ -75,11 +85,7 @@ w := cronowriter.MustNew("/path/to/example.log.%Y%m%d", writer.WithInit())
 // /path/to/example.log.20170204
 ```
 
-## Format
-
-See [lestrrat/go-strftime#supported-conversion-specifications](https://github.com/lestrrat/go-strftime#supported-conversion-specifications)
-
-## Combination
+## Example using with zap
 
 ### [uber-go/zap](https://github.com/uber-go/zap)
 

@@ -6,20 +6,22 @@ import (
 	"os"
 )
 
-type logger interface {
-	Write(b []byte)
-	Println(args ...interface{})
-	Printf(format string, args ...interface{})
-	Error(args ...interface{})
-	Errorf(format string, args ...interface{})
-}
+type (
+	logger interface {
+		Write(b []byte)
+		Println(args ...interface{})
+		Printf(format string, args ...interface{})
+		Error(args ...interface{})
+		Errorf(format string, args ...interface{})
+	}
 
-type nopLogger struct{}
+	nopLogger struct{}
 
-type debugLogger struct {
-	stdout io.Writer
-	stderr io.Writer
-}
+	debugLogger struct {
+		stdout io.Writer
+		stderr io.Writer
+	}
+)
 
 func newDebugLogger() *debugLogger {
 	return &debugLogger{
