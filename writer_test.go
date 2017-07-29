@@ -1,6 +1,7 @@
 package cronowriter
 
 import (
+	"errors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -163,6 +164,12 @@ func TestCronoWriter_WriteSymlink(t *testing.T) {
 			t.Errorf("Expected %s, got %s", test.expectedText, string(b))
 		}
 	}
+
+	samepath := filepath.Join(tmpDir, "test.log")
+	c := MustNew(samepath, WithSymlink(samepath))
+	if _, err := c.Write([]byte("hello symlink")); err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestCronoWriter_WriteRepeat(t *testing.T) {
@@ -189,12 +196,53 @@ func TestCronoWriter_WriteMutex(t *testing.T) {
 	stubNow("2017-02-04 16:35:05 +0900")
 
 	c := MustNew(filepath.Join(tmpDir, "test.log.%Y%m%d%H%M%S"), WithMutex())
+	wg := &sync.WaitGroup{}
 	for i := 0; i < 10; i++ {
+		wg.Add(1)
 		go func() {
+			defer wg.Done()
 			if _, err := c.Write([]byte("test")); err != nil {
 				t.Fatal(err)
 			}
 		}()
+	}
+	wg.Wait()
+}
+
+func TestCronoWriter_Write_MkdirFail(t *testing.T) {
+	c := MustNew(filepath.Join("/cronowriter", "test.log"))
+	if _, err := c.Write([]byte("test")); err == nil {
+		t.Error("Expected permission denied error, got nil")
+	}
+}
+
+func TestCronoWriter_Write_OpenfileFail(t *testing.T) {
+	c := MustNew(filepath.Join("/", "test.log"))
+	if _, err := c.Write([]byte("test")); err == nil {
+		t.Error("Expected permission denied error, got nil")
+	}
+}
+
+func TestCronoWriter_Write_SymlinkFail(t *testing.T) {
+	path := filepath.Join("/cronowriter", "test.log")
+	c := MustNew(filepath.Join(tmpDir, "test.log"), WithSymlink(path))
+	c.Write([]byte("test"))
+
+	if _, err := os.Stat(path); err == nil {
+		t.Errorf("Expected no such file or directory error, got %v", err)
+	}
+}
+
+func TestCronoWriter_write(t *testing.T) {
+	c := MustNew("/path/to/test.log")
+	expectedErr := errors.New("fail write")
+
+	n, err := c.write(nil, expectedErr)
+	if n != 0 {
+		t.Errorf("Expected write len 0, got %v", n)
+	}
+	if err != expectedErr {
+		t.Errorf("Expected error %v, got %v", expectedErr, err)
 	}
 }
 

@@ -6,9 +6,9 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/utahta/go-cronowriter)](https://goreportcard.com/report/github.com/utahta/go-cronowriter)
 [![GitHub release](https://img.shields.io/github/release/utahta/go-cronowriter.svg)](https://github.com/utahta/go-cronowriter/releases)
 
-This is a simple file writer that it writes message to the output files.
+This is a simple file writer that it writes message to the specified format path.
 
-The output file names are constructed time-based format like cronolog.
+The file path is constructed based on current date and time, like cronolog.
 
 ## Installation
 

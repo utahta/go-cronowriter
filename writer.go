@@ -23,13 +23,13 @@ type (
 		init    bool // if true, open the file when New() method is called
 	}
 
-	// A CronoWriter Option.
+	// A Option with CronoWriter.
 	Option func(*CronoWriter)
 )
 
 var (
-	_   io.WriteCloser   = (*CronoWriter)(nil) // check if object implements interface
-	now func() time.Time = time.Now            // for test
+	_   io.WriteCloser = (*CronoWriter)(nil) // check if object implements interface
+	now                = time.Now            // for test
 )
 
 // New returns a CronoWriter with the given pattern and options.
@@ -118,6 +118,7 @@ func WithInit() Option {
 	}
 }
 
+// Write writes to the file and rotate files automatically based on current date and time.
 func (c *CronoWriter) Write(b []byte) (int, error) {
 	c.mux.Lock()
 	defer c.mux.Unlock()
@@ -176,6 +177,7 @@ func (c *CronoWriter) createSymlink(t time.Time, path string) {
 	}
 }
 
+// Close closes file.
 func (c *CronoWriter) Close() error {
 	c.mux.Lock()
 	defer c.mux.Unlock()

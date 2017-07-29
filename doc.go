@@ -1,7 +1,7 @@
 /*
-Package cronowriter provides a simple file writer that it writes message to the output files.
+Package cronowriter provides a simple file writer that it writes message to the specified format path.
 
-The output file names are constructed time-based format like cronolog.
+The file path is constructed based on current date and time, like cronolog.
 
 Installation
 
