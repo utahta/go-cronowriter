@@ -163,9 +163,11 @@ func (c *CronoWriter) createSymlink(t time.Time, path string) {
 		return // ignore error
 	}
 
-	if err := os.Remove(symlink); err != nil {
-		c.debug.Error(err)
-		return // ignore error
+	if _, err := os.Stat(symlink); err == nil {
+		if err := os.Remove(symlink); err != nil {
+			c.debug.Error(err)
+			return // ignore error
+		}
 	}
 
 	if err := os.Symlink(path, symlink); err != nil {
