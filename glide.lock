@@ -1,8 +1,0 @@
-hash: a94dee9ba95d3d8cb2ca3318716655355cfa381cd538a95e847db625d3bc29f8
-updated: 2017-02-05T11:06:40.356250718+09:00
-imports:
-- name: github.com/lestrrat/go-strftime
-  version: 04ef93e285313c8978cbc7cad26d2aa7a9927451
-- name: github.com/pkg/errors
-  version: 248dadf4e9068a0b3e79f02ed0a610d935de5302
-testImports: []

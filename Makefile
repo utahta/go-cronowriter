@@ -1,5 +1,8 @@
 .PHONY: fmt test
 
+install:
+	@dep ensure
+
 fmt:
 	@goimports -w .
 
