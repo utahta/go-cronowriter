@@ -1,3 +1,0 @@
-package: github.com/utahta/go-cronowriter
-import:
-- package: github.com/lestrrat/go-strftime
