@@ -10,6 +10,8 @@ This is a simple file writer that it writes message to the specified format path
 
 The file path is constructed based on current date and time, like cronolog.
 
+This project follows the [Semantic Versioning](https://semver.org/).
+
 ## Installation
 
 ```
@@ -67,6 +69,11 @@ w.Write([]byte("test"))
 with Mutex
 ```go
 w := cronowriter.MustNew("/path/to/example.log.%Y%m%d", writer.WithMutex())
+```
+
+no use Mutex
+```go
+w := cronowriter.MustNew("/path/to/example.log.%Y%m%d", writer.WithNopMutex())
 ```
 
 with Debug (stdout and stderr)
