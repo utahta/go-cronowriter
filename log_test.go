@@ -45,3 +45,69 @@ func TestDebugLogger_Errorf(t *testing.T) {
 		t.Errorf("Expected stderr %s, got %s", errStr, ebuf.String())
 	}
 }
+
+func TestStdoutLogger_Write(t *testing.T) {
+	obuf := &bytes.Buffer{}
+	l := &stdoutLogger{w: obuf}
+	outStr := "out text"
+
+	l.Write([]byte(outStr))
+	if !strings.Contains(obuf.String(), outStr) {
+		t.Errorf("Expected stdout %s, got %s", outStr, obuf.String())
+	}
+}
+
+func TestStdoutLogger_Error(t *testing.T) {
+	ebuf := &bytes.Buffer{}
+	l := &stdoutLogger{w: ebuf}
+	errStr := "err text"
+
+	l.Error(errStr)
+	if !strings.Contains(ebuf.String(), errStr) {
+		t.Errorf("Expected stderr %s, got %s", errStr, ebuf.String())
+	}
+}
+
+func TestStdoutLogger_Errorf(t *testing.T) {
+	ebuf := &bytes.Buffer{}
+	l := &stdoutLogger{w: ebuf}
+	errStr := "err text"
+
+	l.Errorf("%s", errStr)
+	if !strings.Contains(ebuf.String(), errStr) {
+		t.Errorf("Expected stderr %s, got %s", errStr, ebuf.String())
+	}
+}
+
+func TestStderrLogger_Write(t *testing.T) {
+	obuf := &bytes.Buffer{}
+	l := &stderrLogger{w: obuf}
+	outStr := "out text"
+
+	l.Write([]byte(outStr))
+	if !strings.Contains(obuf.String(), outStr) {
+		t.Errorf("Expected stdout %s, got %s", outStr, obuf.String())
+	}
+}
+
+func TestStderrLogger_Error(t *testing.T) {
+	ebuf := &bytes.Buffer{}
+	l := &stderrLogger{w: ebuf}
+	errStr := "err text"
+
+	l.Error(errStr)
+	if !strings.Contains(ebuf.String(), errStr) {
+		t.Errorf("Expected stderr %s, got %s", errStr, ebuf.String())
+	}
+}
+
+func TestStderrLogger_Errorf(t *testing.T) {
+	ebuf := &bytes.Buffer{}
+	l := &stderrLogger{w: ebuf}
+	errStr := "err text"
+
+	l.Errorf("%s", errStr)
+	if !strings.Contains(ebuf.String(), errStr) {
+		t.Errorf("Expected stderr %s, got %s", errStr, ebuf.String())
+	}
+}
