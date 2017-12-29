@@ -147,6 +147,16 @@ func TestCronoWriter_Write(t *testing.T) {
 	}
 }
 
+func TestCronoWriter_Path(t *testing.T) {
+	stubNow("2017-02-04 16:35:05 +0900")
+
+	c := MustNew(filepath.Join(tmpDir, "test.log.%Y%m%d%H%M%S"), WithInit())
+	expected := filepath.Join(tmpDir, "test.log.20170204163505")
+	if expected != c.Path() {
+		t.Errorf("Expected file path %s, got %s", expected, c.Path())
+	}
+}
+
 func TestCronoWriter_WriteSymlink(t *testing.T) {
 	stubNow("2017-02-04 16:35:05 +0900")
 	tests := []struct {

@@ -167,6 +167,11 @@ func (c *CronoWriter) Write(b []byte) (int, error) {
 	return c.write(b, nil)
 }
 
+// Path returns the current writing file path.
+func (c *CronoWriter) Path() string {
+	return c.path
+}
+
 func (c *CronoWriter) createSymlink(t time.Time, path string) {
 	if c.symlink == nil {
 		return
