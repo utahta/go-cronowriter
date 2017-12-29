@@ -19,7 +19,7 @@ type (
 		fp      *os.File           // current file pointer
 		loc     *time.Location
 		mux     sync.Locker
-		debug   logger
+		log     logger
 		init    bool // if true, open the file when New() method is called
 	}
 
@@ -46,7 +46,7 @@ func New(pattern string, options ...Option) (*CronoWriter, error) {
 		fp:      nil,
 		loc:     time.Local,
 		mux:     new(sync.Mutex), // default mutex enable
-		debug:   &nopLogger{},
+		log:     &nopLogger{},
 		init:    false,
 	}
 
@@ -107,7 +107,21 @@ func WithNopMutex() Option {
 // WithDebug enables output stdout and stderr.
 func WithDebug() Option {
 	return func(c *CronoWriter) {
-		c.debug = newDebugLogger()
+		c.log = newDebugLogger()
+	}
+}
+
+// WithStdout enables output always stdout.
+func WithStdout() Option {
+	return func(c *CronoWriter) {
+		c.log = newStdoutLogger()
+	}
+}
+
+// WithStderr enables output always stderr.
+func WithStderr() Option {
+	return func(c *CronoWriter) {
+		c.log = newStderrLogger()
 	}
 }
 
@@ -160,19 +174,19 @@ func (c *CronoWriter) createSymlink(t time.Time, path string) {
 
 	symlink := c.symlink.FormatString(t)
 	if symlink == path {
-		c.debug.Error("Can't create symlink. same path is specified.")
+		c.log.Error("Can't create symlink. Already file exists.")
 		return // ignore error
 	}
 
 	if _, err := os.Stat(symlink); err == nil {
 		if err := os.Remove(symlink); err != nil {
-			c.debug.Error(err)
+			c.log.Error(err)
 			return // ignore error
 		}
 	}
 
 	if err := os.Symlink(path, symlink); err != nil {
-		c.debug.Error(err)
+		c.log.Error(err)
 		return // ignore error
 	}
 }
@@ -187,10 +201,10 @@ func (c *CronoWriter) Close() error {
 
 func (c *CronoWriter) write(b []byte, err error) (int, error) {
 	if err != nil {
-		c.debug.Error(err)
+		c.log.Error(err)
 		return 0, err
 	}
 
-	c.debug.Write(b)
+	c.log.Write(b)
 	return c.fp.Write(b)
 }

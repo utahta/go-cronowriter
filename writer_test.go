@@ -62,8 +62,18 @@ func TestNew(t *testing.T) {
 	}
 
 	c, _ = New("/path/to/file", WithDebug())
-	if _, ok := c.debug.(*debugLogger); !ok {
-		t.Errorf("Expected debugLogger object, got %#v", c.debug)
+	if _, ok := c.log.(*debugLogger); !ok {
+		t.Errorf("Expected debugLogger object, got %#v", c.log)
+	}
+
+	c, _ = New("/path/to/file", WithStdout())
+	if _, ok := c.log.(*stdoutLogger); !ok {
+		t.Errorf("Expected stdoutLogger object, got %#v", c.log)
+	}
+
+	c, _ = New("/path/to/file", WithStderr())
+	if _, ok := c.log.(*stderrLogger); !ok {
+		t.Errorf("Expected stderrLogger object, got %#v", c.log)
 	}
 
 	c, err := New("/path/to/%")

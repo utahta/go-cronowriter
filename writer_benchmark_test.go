@@ -40,8 +40,8 @@ func BenchmarkCronoWriter_WriteWithDebug(b *testing.B) {
 	}
 
 	c := MustNew(filepath.Join(tmpDir, "benchmark.log.%Y%m%d"), WithDebug())
-	c.debug.(*debugLogger).stdout = ioutil.Discard
-	c.debug.(*debugLogger).stderr = ioutil.Discard
+	c.log.(*debugLogger).stdout = ioutil.Discard
+	c.log.(*debugLogger).stderr = ioutil.Discard
 	for i := 0; i < b.N; i++ {
 		c.Write([]byte("abcdefg"))
 	}
