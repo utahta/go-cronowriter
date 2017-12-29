@@ -150,7 +150,8 @@ func TestCronoWriter_Write(t *testing.T) {
 func TestCronoWriter_Path(t *testing.T) {
 	stubNow("2017-02-04 16:35:05 +0900")
 
-	c := MustNew(filepath.Join(tmpDir, "test.log.%Y%m%d%H%M%S"), WithInit())
+	jst := time.FixedZone("Asia/Tokyp", 9*60*60)
+	c := MustNew(filepath.Join(tmpDir, "test.log.%Y%m%d%H%M%S"), WithInit(), WithLocation(jst))
 	expected := filepath.Join(tmpDir, "test.log.20170204163505")
 	if expected != c.Path() {
 		t.Errorf("Expected file path %s, got %s", expected, c.Path())
