@@ -10,8 +10,10 @@ jobs:
       - run: go get github.com/golang/dep/cmd/dep
       - run: make install
       - run:
-          name: Run tests
-          command: make test
+          name: Run tests and coverage
+          command: |
+            make test-coverage
+            bash <(curl -s https://codecov.io/bash)
 
   "go-1.9":
     docker:
