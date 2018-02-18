@@ -1,7 +1,7 @@
 # cronowriter
 
 [![GoDoc Reference](https://godoc.org/github.com/utahta/go-cronowriter?status.svg)](http://godoc.org/github.com/utahta/go-cronowriter)
-[![Build Status](https://travis-ci.org/utahta/go-cronowriter.svg?branch=master)](https://travis-ci.org/utahta/go-cronowriter)
+[![CircleCI](https://circleci.com/gh/utahta/go-cronowriter.svg?style=svg)](https://circleci.com/gh/utahta/go-cronowriter)
 [![codecov](https://codecov.io/gh/utahta/go-cronowriter/branch/master/graph/badge.svg)](https://codecov.io/gh/utahta/go-cronowriter)
 [![Go Report Card](https://goreportcard.com/badge/github.com/utahta/go-cronowriter)](https://goreportcard.com/report/github.com/utahta/go-cronowriter)
 [![GitHub release](https://img.shields.io/github/release/utahta/go-cronowriter.svg)](https://github.com/utahta/go-cronowriter/releases)
