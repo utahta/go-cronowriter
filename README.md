@@ -22,7 +22,7 @@ $ go get -u github.com/utahta/go-cronowriter
 
 API documentation can be found [here](http://godoc.org/github.com/utahta/go-cronowriter).
 
-The format specifications can be found [here](https://github.com/lestrrat/go-strftime#supported-conversion-specifications).
+The format specifications can be found [here](https://github.com/lestrrat-go/strftime#supported-conversion-specifications).
 
 ## Examples
 

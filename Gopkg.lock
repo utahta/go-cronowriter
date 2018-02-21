@@ -3,18 +3,19 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/lestrrat/go-strftime"
+  name = "github.com/lestrrat-go/strftime"
   packages = ["."]
-  revision = "04ef93e285313c8978cbc7cad26d2aa7a9927451"
+  revision = "9948d03c6207ada6a27c7b43405f8dee04a8439e"
 
 [[projects]]
   name = "github.com/pkg/errors"
   packages = ["."]
-  revision = "248dadf4e9068a0b3e79f02ed0a610d935de5302"
+  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
+  version = "v0.8.0"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9b9c07b24ef2eb1d899ccf470736d8e93a3cff3ece3c8de0fe255f4f608aff1a"
+  inputs-digest = "277d1b6a7424687526b7d1a02f98322b983b8c11d21bf76095c87fce938936f0"
   solver-name = "gps-cdcl"
   solver-version = 1

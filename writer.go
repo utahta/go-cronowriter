@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/lestrrat/go-strftime"
+	"github.com/lestrrat-go/strftime"
 )
 
 type (

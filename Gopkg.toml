@@ -23,4 +23,4 @@
 
 [[constraint]]
   branch = "master"
-  name = "github.com/lestrrat/go-strftime"
+  name = "github.com/lestrrat-go/strftime"
