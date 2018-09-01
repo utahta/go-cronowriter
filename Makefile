@@ -3,6 +3,9 @@
 install:
 	@dep ensure
 
+mod:
+	go mod tidy
+
 fmt:
 	@goimports -w .
 
