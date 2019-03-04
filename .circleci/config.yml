@@ -1,20 +1,6 @@
 version: 2.0
 
 jobs:
-  "go-1.8":
-    docker:
-      - image: circleci/golang:1.8
-    working_directory: /go/src/github.com/utahta/go-cronowriter
-    steps:
-      - checkout
-      - run: go get github.com/golang/dep/cmd/dep
-      - run: make install
-      - run:
-          name: Run tests and coverage
-          command: |
-            make test-coverage
-            bash <(curl -s https://codecov.io/bash)
-
   "go-1.9":
     docker:
       - image: circleci/golang:1.9
@@ -52,11 +38,24 @@ jobs:
           name: Run tests
           command: make test
 
+  "go-1.12":
+    docker:
+      - image: circleci/golang:1.12
+        environment:
+          GO111MODULE=on
+    working_directory: /go/src/github.com/utahta/go-cronowriter
+    steps:
+      - checkout
+      - run: make mod
+      - run:
+          name: Run tests
+          command: make test
+
 workflows:
   version: 2
   build:
     jobs:
-      - "go-1.8"
       - "go-1.9"
       - "go-1.10"
       - "go-1.11"
+      - "go-1.12"
