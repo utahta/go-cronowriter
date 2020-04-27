@@ -30,6 +30,10 @@ func stubNow(value string) {
 	}
 }
 
+func StubNow(value string) {
+	stubNow(value)
+}
+
 func TestNew(t *testing.T) {
 	c, _ := New("/path/to/file")
 	if c.pattern.Pattern() != "/path/to/file" {
