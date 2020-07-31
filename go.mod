@@ -1,5 +1,7 @@
 module github.com/utahta/go-cronowriter
 
+go 1.11
+
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fastly/go-utils v0.0.0-20180712184237-d95a45783239 // indirect

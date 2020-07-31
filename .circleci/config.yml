@@ -5,7 +5,7 @@ jobs:
     docker:
       - image: circleci/golang:1.11
         environment:
-          GO111MODULE=on
+          GO111MODULE: "on"
     working_directory: /go/src/github.com/utahta/go-cronowriter
     steps:
       - checkout
@@ -18,7 +18,7 @@ jobs:
     docker:
       - image: circleci/golang:1.12
         environment:
-          GO111MODULE=on
+          GO111MODULE: "on"
     working_directory: /go/src/github.com/utahta/go-cronowriter
     steps:
       - checkout
@@ -30,8 +30,16 @@ jobs:
   "go-1.13":
     docker:
       - image: circleci/golang:1.13
-        environment:
-          GO111MODULE=on
+    working_directory: /go/src/github.com/utahta/go-cronowriter
+    steps:
+      - checkout
+      - run: make mod
+      - run:
+          name: Run tests
+          command: make test
+  "go-1.14":
+    docker:
+      - image: circleci/golang:1.14
     working_directory: /go/src/github.com/utahta/go-cronowriter
     steps:
       - checkout
@@ -47,3 +55,4 @@ workflows:
       - "go-1.11"
       - "go-1.12"
       - "go-1.13"
+      - "go-1.14"
