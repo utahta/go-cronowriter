@@ -169,6 +169,8 @@ func (c *CronoWriter) Write(b []byte) (int, error) {
 
 // Path returns the current writing file path.
 func (c *CronoWriter) Path() string {
+	c.mux.Lock()
+	defer c.mux.Unlock()
 	return c.path
 }
 
