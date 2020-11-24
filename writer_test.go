@@ -273,3 +273,26 @@ func TestCronoWriter_Close(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestCronoWriter_WriteAndPath(t *testing.T) {
+	stubNow("2017-02-04 16:35:05 +0900")
+
+	jst := time.FixedZone("Asia/Tokyp", 9*60*60)
+	c := MustNew(filepath.Join(tmpDir, "test.log.%Y%m%d%H%M%S"), WithInit(), WithLocation(jst))
+	beforeExpected := filepath.Join(tmpDir, "test.log.20170204163505")
+	if beforeExpected != c.Path() {
+		t.Errorf("Expected file path %s, got %s", beforeExpected, c.Path())
+	}
+	stubNow("2017-02-04 16:35:33 +0900")
+	wg := &sync.WaitGroup{}
+	wg.Add(2)
+	go func() {
+		defer wg.Done()
+		c.Write([]byte("test"))
+	}()
+	go func() {
+		defer wg.Done()
+		c.Path()
+	}()
+	wg.Wait()
+}
