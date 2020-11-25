@@ -1,9 +1,7 @@
 .PHONY: fmt test
 
-install:
-	@dep ensure
-
 mod:
+	go mod download
 	go mod tidy
 
 fmt:

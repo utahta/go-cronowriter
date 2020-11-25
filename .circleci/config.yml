@@ -47,6 +47,16 @@ jobs:
       - run:
           name: Run tests
           command: make test
+  "go-1.15":
+    docker:
+      - image: circleci/golang:1.15
+    working_directory: /go/src/github.com/utahta/go-cronowriter
+    steps:
+      - checkout
+      - run: make mod
+      - run:
+          name: Run tests
+          command: make test
 
 workflows:
   version: 2
@@ -56,3 +66,4 @@ workflows:
       - "go-1.12"
       - "go-1.13"
       - "go-1.14"
+      - "go-1.15"
