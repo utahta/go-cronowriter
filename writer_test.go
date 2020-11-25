@@ -113,7 +113,7 @@ func TestCronoWriter_Write(t *testing.T) {
 		{filepath.Join("2006", "01", "02", "test.log"), filepath.Join("2006", "01", "02", "test.log")}, // repeat
 	}
 
-	jst := time.FixedZone("Asia/Tokyp", 9*60*60)
+	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
 	for _, test := range tests {
 		c := MustNew(filepath.Join(tmpDir, test.pattern), WithLocation(jst))
 		for i := 0; i < 2; i++ {
@@ -150,7 +150,7 @@ func TestCronoWriter_Write(t *testing.T) {
 func TestCronoWriter_Path(t *testing.T) {
 	stubNow("2017-02-04 16:35:05 +0900")
 
-	jst := time.FixedZone("Asia/Tokyp", 9*60*60)
+	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
 	c := MustNew(filepath.Join(tmpDir, "test.log.%Y%m%d%H%M%S"), WithInit(), WithLocation(jst))
 	expected := filepath.Join(tmpDir, "test.log.20170204163505")
 	if expected != c.Path() {
@@ -277,7 +277,7 @@ func TestCronoWriter_Close(t *testing.T) {
 func TestCronoWriter_WriteAndPath(t *testing.T) {
 	stubNow("2017-02-04 16:35:05 +0900")
 
-	jst := time.FixedZone("Asia/Tokyp", 9*60*60)
+	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
 	c := MustNew(filepath.Join(tmpDir, "test.log.%Y%m%d%H%M%S"), WithInit(), WithLocation(jst))
 	beforeExpected := filepath.Join(tmpDir, "test.log.20170204163505")
 	if beforeExpected != c.Path() {
