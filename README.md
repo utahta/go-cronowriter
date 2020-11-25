@@ -101,17 +101,21 @@ w := cronowriter.MustNew("/path/to/example.log.%Y%m%d", writer.WithInit())
 package main
 
 import (
-	"github.com/uber-go/zap"
 	"github.com/utahta/go-cronowriter"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 func main() {
 	w1 := cronowriter.MustNew("/tmp/example.log.%Y%m%d")
 	w2 := cronowriter.MustNew("/tmp/internal_error.log.%Y%m%d")
 	l := zap.New(
-		zap.NewJSONEncoder(),
-		zap.Output(zap.AddSync(w1)),
-		zap.ErrorOutput(zap.AddSync(w2)),
+		zapcore.NewCore(
+			zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()),
+			zapcore.AddSync(w1),
+			zapcore.InfoLevel,
+		),
+		zap.ErrorOutput(zapcore.AddSync(w2)),
 	)
 	l.Info("test")
 }
