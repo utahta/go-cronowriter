@@ -134,11 +134,15 @@ func WithInit() Option {
 
 // Write writes to the file and rotate files automatically based on current date and time.
 func (c *CronoWriter) Write(b []byte) (int, error) {
+	return c.WriteWithTime(b, now())
+}
+
+// WriteWithTime writes to the file and rotate files automatically based on provided date and time.
+func (c *CronoWriter) WriteWithTime(b []byte, t time.Time) (int, error) {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 
-	t := now().In(c.loc)
-	path := c.pattern.FormatString(t)
+	path := c.pattern.FormatString(t.In(c.loc))
 
 	if c.path != path {
 		// close file
@@ -146,7 +150,7 @@ func (c *CronoWriter) Write(b []byte) (int, error) {
 			if fp == nil {
 				return
 			}
-			fp.Close()
+			_ = fp.Close()
 		}(c.fp)
 
 		dir := filepath.Dir(path)

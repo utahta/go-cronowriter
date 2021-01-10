@@ -38,6 +38,15 @@ w.Write([]byte("test"))
 // /path/to/example.log.20170204
 ```
 
+You can specify custom time instead of `time.Now()`:
+```go
+w := cronowriter.MustNew("/path/to/example.log.%Y%m%d")
+t, _ := time.Parse(time.RFC3339, "2012-11-01T22:08:41+00:00")
+w.WriteWithTime([]byte("test"), t)
+// output file
+// /path/to/example.log.20121101
+```
+
 You can specify the directory as below
 ```go
 w := cronowriter.MustNew("/path/to/%Y/%m/%d/example.log")
