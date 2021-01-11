@@ -296,3 +296,13 @@ func TestCronoWriter_WriteAndPath(t *testing.T) {
 	}()
 	wg.Wait()
 }
+
+func TestCronoWriter_WriteWithTime(t *testing.T) {
+	c := MustNew(filepath.Join(tmpDir, "test.log.%Y%m%d%H%M%S"))
+	pathExpected := filepath.Join(tmpDir, "test.log.20121101220841")
+	ht, _ := time.Parse(time.RFC3339, "2012-11-01T22:08:41+00:00")
+	c.WriteWithTime([]byte("test"), ht)
+	if pathExpected != c.Path() {
+		t.Errorf("Expected file path %s, got %s", pathExpected, c.Path())
+	}
+}
