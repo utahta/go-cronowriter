@@ -17,6 +17,7 @@ type (
 		path    string             // current file path
 		symlink *strftime.Strftime // symbolic link to current file path
 		fp      *os.File           // current file pointer
+		perm    os.FileMode
 		loc     *time.Location
 		mux     sync.Locker
 		log     logger
@@ -48,6 +49,7 @@ func New(pattern string, options ...Option) (*CronoWriter, error) {
 		mux:     new(sync.Mutex), // default mutex enable
 		log:     &nopLogger{},
 		init:    false,
+		perm:    os.FileMode(0644),
 	}
 
 	for _, option := range options {
@@ -132,6 +134,13 @@ func WithInit() Option {
 	}
 }
 
+// WithPerm sets permissions for created files
+func WithPerm(perm os.FileMode) Option {
+	return func(c *CronoWriter) {
+		c.perm = perm
+	}
+}
+
 // Write writes to the file and rotate files automatically based on current date and time.
 func (c *CronoWriter) Write(b []byte) (int, error) {
 	c.mux.Lock()
@@ -154,7 +163,7 @@ func (c *CronoWriter) Write(b []byte) (int, error) {
 			return c.write(nil, err)
 		}
 
-		fp, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+		fp, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_APPEND, c.perm)
 		if err != nil {
 			return c.write(nil, err)
 		}
