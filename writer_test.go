@@ -158,6 +158,18 @@ func TestCronoWriter_Path(t *testing.T) {
 	}
 }
 
+func TestCronoWriter_Perm(t *testing.T) {
+	expected := os.FileMode(0600)
+	c := MustNew(filepath.Join(tmpDir, "test.log.%Y%m%d"), WithInit(), WithPerm(expected))
+	stat, err := os.Stat(c.Path())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if stat.Mode() != expected {
+		t.Errorf("Expected file mode %#o, got %#o", expected, stat.Mode())
+	}
+}
+
 func TestCronoWriter_WriteSymlink(t *testing.T) {
 	stubNow("2017-02-04 16:35:05 +0900")
 	tests := []struct {

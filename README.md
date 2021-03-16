@@ -93,6 +93,14 @@ w := cronowriter.MustNew("/path/to/example.log.%Y%m%d", writer.WithInit())
 // /path/to/example.log.20170204
 ```
 
+with Perm
+```go
+w := cronowriter.MustNew("/path/to/example.log.%Y%m%d", writer.WithPerm(os.FileMode(0600)))
+
+// output file with permissions
+// -rw------- /path/to/example.log.20170204
+```
+
 ## Example using with zap
 
 ### [uber-go/zap](https://github.com/uber-go/zap)
